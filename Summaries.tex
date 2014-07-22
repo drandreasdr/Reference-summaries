@@ -113,8 +113,9 @@ instead of
 \begin{itemize}
 \item Compares a stabilization method by Douglas--Wang with the GLS method for Stokes flow.
 \item Hints that the pure least-squares method gives too dissipative results for the advection--diffusion equation.
-\item Example: \includegraphics[width=3cm]{figures/FrancaFrey1992_img1.jpg}
-\item Example: \includegraphics[width=3cm]{figures/FrancaFrey1992_img2.jpg}. Here, quad is considerably better than lin for equal number of dofs.
+\item Example: \includegraphics[width=5cm]{figures/FrancaFrey1992_img1.jpg}
+\item Example: \includegraphics[width=5cm]{figures/FrancaFrey1992_img2.jpg}\\
+Here, quad is considerably better than lin for equal number of dofs.
 \item Some development in the chocie of $\tau$.
 \end{itemize}
 
@@ -176,17 +177,205 @@ instead of
 \item Introduction:
 \begin{itemize}
 \item On rolling contact, where it happens and associated problems (damage phenomena).
+\item Stress analysis, of its importance to understand fatigue/wear and how it's done: semianalyt or FEM. \emph{many} references on each method. I should check them out to understand: a) why "semi-"? b) How to do rolling contact with FEM without ALE?
+\item Claims to be first paper to do elastic-plastic stress analysis with stick/slip.
+\item History of stick/slip, experimental/theoretical.
+\item Partial slip more damaging than full?
 \end{itemize}
+\item This paper: Stresses/deformations due to stick/slip rolling. \underline{Uses analytical load on meshed rail (2D plane strain)}.
+\item Uses finite elements!
+\item ABAQUS used
+\item 2-4 hours per rolling cycle!
+\item Results similar to those of JiangSehitoglu1999's semi-analytical theory (next reference in this list)
 \end{itemize}
 
-%\textbf{key}
-%\begin{itemize}
-%\item item
-%\end{itemize}
+\textbf{JiangSehitoglu1999}
+\begin{itemize}
+\item Introduction:
+\begin{itemize}
+\item Distinguishes between engineering/research models for life prediction of rolling contact (references Tallian).
+\item Problems with FE models: computationally expensive, convergence issues.
+\item Current paper uses a semi-analytical model, shown to agree with FE results.
+\end{itemize}
+\item Talks about critical plane approaches to fatigue.
+\item Stress distribution obtained from Hertzian contact theory. Full slip assumed.
+\item Contact pressure distribution assumed to be unaffected by stick/slip, geometry changes, etc.
+\end{itemize}
+
+\textbf{Special section}
+Summary of my quick look at references 3--13 and 14--24 in \textbf{XuJiang2001} (these groups of references refer to semi-analytical vs. FE-based analysis of rolling contact)
+
+\noindent
+\underline{3--13}
+\begin{itemize}
+\item Semi-analytical: Hertzian contact theory gives stress distribution/deformation in contacting bodies. Numerical methods modelling e.g. inelastic material response or wear or fatigue are used in conjunction with these solutions.
+\item Significant gain in computational cost compared to FE methods (see eg. number 9). No convergence problems, especially in 3D.
+\item Isn't no. 11 a FE method?
+\end{itemize}
+\underline{4--24}
+\begin{itemize}
+\item Papers using elliptic pressure distribution on meshed rail: all of them.
+\end{itemize}
 
 
+\textbf{Kulkarni1991}
+\begin{itemize}
+\item Introduction:
+\begin{itemize}
+\item Important to account for thermal effects.
+\item Present paper: Transiently elasto-plastic, thermomechanical FE model of 2D frictional rolling contact (of type: analytical Hertz pressure distr. on FE mesh).
+\end{itemize}
+\item Lets a purely thermal load pass before the thermomechanical one. Why?
+\item Fig 9 is nice. Looks just like you'd expect.
+\item Observes residual tensile stresses in the rail (an explanation is given).
+\end{itemize}
 
+\textbf{Special remark}
+Now, let's look at papers on rolling contact including \underline{two} bodies, preferably with AND without ALE. (How is two-body contact without ALE done?)
 
+\textbf{Ibrahimbegovic2003}
+\begin{itemize}
+\item In short: non-linear dynamics of flexible systems with constraints (large deformations)
+\item Rolling contact example exemplifying non-holonomic constraints. But very simple: rigid bodies, no slip.
+\item Lagrangian kinematics all the way, it seems.
+\end{itemize}
+
+\textbf{Amirouche1993}
+\begin{itemize}
+\item About dynamic analysis of rolling contact in flexible multibody systems. Large deformations.
+\item Intro mentions other rolling contact references and seems to hint at ALE implementations.
+\item Node--node contact model used.
+\item Eqs. of motion "presented in matrix form making use of Kane's equations and FEM". Chapter 2 contains a derivation. I don't understand a thing.
+\item According to Lesser1992, Kane's eqs. are "equations of motion for systems of constrained particles and rigid bodies". So how does it apply to deformable bodies?
+\item \textbf{\underline{Very}} coarse mesh used in the wheel--rail rolling contact numerical example.
+\end{itemize}
+
+\textbf{Arnold1984}
+\begin{itemize}
+\item Proof that the MINI element (linear shape functions + bubble function) satisfies the inf-sup condition for the Stokes problem (coupled velocity-pressure).
+\end{itemize}
+
+\textbf{BrezziMarini1998}
+\begin{itemize}
+\item Residual-free bubbles were "recently introduced" in 1997.
+\item Great description of "layers" (boundary and internal) in which the solution changes abruptly due to convection dominated flow. Also on how a Galerkin approach with a mesh that is too coarse to resolve these layers leads to numerical oscillations spreading all over the domain. WHY?? (see DoneaHuerta2003book?)
+\item On the relation between SUPG and bubble functions: the problem of choosing $\tau$ can be transferred to the problem of choosing a suitable bubble space, since $\tau$ can be expressed exactly as soon as the latter has been done.
+\item[Q] If SUPG and bubble function method are equivalent, why do bubbles (but not SUPG) work in my case (especially since I choose the extra node $P$ in a fairly ad hoc way)? Hmm, bubbles \emph{do} work better than SUPG in this paper, see next Q.
+\item Paper is dedicated to approximationg $b_k$, the function involved in the exact expression for $\tau$.
+\item Strategy: Look for an approximation to $b_k$ in the shape of a pyramid (i.e. look for a solution to the differential equation (35), which governs $b_k$, in the shape of a pyramid). Unknowns: position of $P$ and height of pyramid.
+\item Method used: Choose $P$ along the thin line in the triangles in the figure (the thin line can be chosen parallel to the convective velocity field as well). Note that in the left figure, there is one outflow edge, while in the other there is two. The thin line goes from either the corner opposite the only outflow edge or from the corner in between the two outflow edges, and to the middle of the opposite side.
+\includegraphics[width=5cm]{figures/BrezziMarini1998_img1.jpg}
+\item[Q] Examples show how SUPG is over-diffusive compared to bubbles and refined Galerkin. But I wonder how coarse Galerkin would look. Over-diffusive (damped) or just oscillatory?
+\item They don't seem to mention how $\tau$ is chosen in the SUPG method they use in the examples. Is there a standard choice?
+\item[Q] Can it be that the pure over-diffusion that happens in my case (i.e. no oscillation) is due to the absence of boundary layers (since the convection streamlines are all closed: \underline{no outflow boundary}).
+\item One more thing: this paper doesn't assume that convection dominates (in that case, finding a suitable bubble space is allegedly easy), but offers a method for the general case.
+\end{itemize}
+
+\textbf{BrezziHauke2003}
+\begin{itemize}
+\item Introduction:
+\begin{itemize}
+\item First paper on RFB (one I can't get) is Brezzi, Russo: "Choosing bubbles for advection--diffusion problems".
+\item[Q] Should I talk about "advection" rather than "convection"?
+\item Their point was to find a suitable value for $\tau$.
+\item Stabilization (or removing the need for it, rather) by proper choice of grid!
+\item Current paper merges the above and bubbles.
+\end{itemize}
+\item RFB: The bubble space is $H_0^1(K)$, i.e. all functions with a continuous first derivative, with the element $K$ as support and zero at $\partial K$.
+\item Origin of the name Residual Free!!!
+\item Elaborated: In the RFB approach, the approximation is enriched by a bubble function in each element, taken from the space $H_0^1(K)$. This enriched basis function ($V_L + V_B$) is capable of exactly satisfying the governing equation (the strong form) in each element ($\mathcal{L}u = f$, say), hence "Residual free".
+\item Interesting observation that if bubbles are the same type of function as the approximation (e.g. p.w. linear), then the process of adding extra nodes locally in each element and condensing is really just the same thing as "smart" mesh refinement (since condensation -- being optional -- doesn't change the mathematical nature of the procedure).
+\item[Q] Maybe I don't get good effects using bubbles in the rail because the nodes there are incorrectly placed? How would the exact bubbles look? In the figure below. a) shows how I do it in Paper 2--4: placement of the extra node (red dot) along a line that is parallel with the convection stream line, and that intersects the centroid (black dot) of the triangle. b) How I perhaps should place it instead, which is based on c) which I guess is some kind of solution to the convective heat equation across the triangle.
+\includegraphics[width=5cm]{figures/BrezziHauke2003_img1.jpg}
+\end{itemize}
+
+\textbf{MouradDolbow2007}
+\begin{itemize}
+\item Not particularly relevant. Also, I don't really understand what is meant by "embedded interfaces".
+\item They admit that their choice of bubble space is naive. I identified with that.
+\end{itemize}
+
+\textbf{Zeid1981}
+\begin{itemize}
+\item Quite sophisticated FEM-based contact formulation from a LONG time ago: friction, rigid rail, "Galilean" ($\Leftrightarrow$ Eulerian I guess) transform, unsure of if the contact formulation is more like PM or LMM, purely mechanical case.
+\item I don't understand what the Galilean transform does.
+\end{itemize}
+
+\textbf{Padovan1987}
+\begin{itemize}
+\item Part 1/3 of this series of papers.
+\item Very sophisticated wheel--rail contact model: 3D, simulation of bumps/holes, viscoelasticity + all of what was in Zeid1981. Still only mechanical though.
+\item[R] Search for keywords "thermomechanical rolling contact" in the next search for papers.
+\item Coriolis acc. included in formulation. Do I have it in mine? Probably, but which term is it?
+\item This paper contains field equations, material model and FEM formulation.
+\end{itemize}
+
+\textbf{Kennedy1987}
+\begin{itemize}
+\item Part 2/3 of this series of papers.
+\item Contains 3D formulation, shell formulation, contact formulation (in 3D), and numerical examples.
+\item Purely mechanical, so high speeds not surprising. Rigid ground when included.
+\item Same Galilean transform here as in Zeid1981?
+\item Pantographing mentioned: it is the antenna-like assembly of thin metal "sticks" that connects e.g. trams to the power lines above them.
+\end{itemize}
+
+\textbf{Nakajima1987}
+\begin{itemize}
+\item Part 3/3 of this series of papers.
+\item When they talk about "slip--stick" situation is these papers, do they mean total slip/total stick or mixed, as in the examples in my last two papers?
+\item[R] Having a rigid rail would enable me to implement a non-smooth contact surface that wouldn't be as "cheating" as the one in paper 1 for instance.
+\item Contains contact impact methodology and numerical examples, involving rolling over bumps (triangular protrusions) and holes (triangular depressions)
+\end{itemize}
+
+\textbf{ZavariseWriggers1992\_2}
+\begin{itemize}
+\item Introduction:
+\begin{itemize}
+\item Constant penalty parameters (for \underline{mechanical/thermal} contact) not enough to accurately model contact behaviour.
+\item Micro-geometry important to take into account, especially (?) for macroscopically smooth surfaces. Current paper will do this.
+\item Clean surfaces, no friction assumed (no rolling contact of course).
+\end{itemize}
+\item Thermal contact resistance is modelled as three resistors in parallel: these correspond to thermal resistances due to spots, gas and radiation.
+\item Relations for $c_i = 1/R_i$ for spots and gas derived. They depend on microgeometrical considerations such as real contact area (dependent on $p$), cavity size (dependent on $p$) and statistical parameters.
+\item Comparison with experiments gives unknown parameters. They note: this is no ordinary curve fitting that only gives a model applicable to a narrow set of situations, but a calibration of a sophisticated theoretical model.
+\item FEM residuals are consistently linearized so that Newton's method can be used.
+\item Model is concluded to give high precision and a detailed understanding of mechanisms in the contact zone.
+\item No elaboration on mechanical contact formulation, \underline{they probably just use a constant penalty parameter}, as in ZavariseWriggers1992.
+\end{itemize}
+
+\textbf{ZavariseWriggers1992}
+\begin{itemize}
+\item Introduction:
+\begin{itemize}
+\item They make a point about how primitive the constant contact conductivity models are in comparison with theirs.
+\item Another paper about roughly the same thing as in ZavariseWriggers1992\_2: Development of a thermomechanical contact element based on material laws representing "true" contact mechanisms.
+\end{itemize}
+\item Frictionless contact, clean (oxide-free) surfaces assumed (allegedly complicated to treat non-clean surfaces). Frictional formulation under construction (said in conclusions).
+\item Uses same 5-node contact element that I do.
+\item \underline{Constant normal stiffness used!} They almost apologize for it, see p. 771 "we have focussed [sic] our interest more on the thermomechanical coupling".
+\end{itemize}
+
+\textbf{SchreflerZavarise1993}
+\begin{itemize}
+\item More of the same (microgeometrical thermomechanical contact formulation).
+\item Nice passage in the introduction about required accuracy of the contact formulation depending on implementation.
+\item Much more detailed/sophisticated mechanical contact formulation here than in the 2 previous papers.
+\end{itemize}
+
+\textbf{WriggersZavarise1993\_2}
+\begin{itemize}
+\item Pure micromechanics here (\underline{no thermal contact}).
+\item No friction, small displacements, nodal contact formulation.
+\item Augmented Lagrangian technique used.
+\end{itemize}
+
+\textbf{WriggersZavarise1993}
+\begin{itemize}
+\item Node-to-node formulation. No friction.
+\item Microscopic statistical interface laws both for mechanical \& thermal problem.
+\item Remark 1 on p. 50 discusses element area-dependent normal mechanical penalty parameter.
+\item Interfacial thermal conductivity depends on pressure.
+\end{itemize}
 
 
 \textbf{WriggersMiehe1994}
@@ -202,7 +391,22 @@ instead of
 \item Numerical examples provided. Most of them feature a thermoelastic body pressed against a rigid but heat-conducting body. Idealized thermal isolation or fixed temperatures are assumed at surfaces.
 \end{itemize}
 
-
+\textbf{Nackenhorst2004}
+\begin{itemize}
+\item General summary: Lays out the mathematical foundations for elastic, transient rolling contact based on an ALE kinematical description. The kin. descr., balance laws, weak form, rolling contact kinematics are discussed + FE approach of stationary rolling including linearizations.
+\item Introduction:
+\begin{itemize}
+\item ALE-like methods used before (goes back to Padovan, Oden\&Lin). Inelastic material behaviour has even been addressed in the ALE context (engineering approaches relying on structured meshes I think (references [10], [29])) or the Streamline Upwind-based method of LeTallec and Rahier. However, Nackenhorst says, previous works do not handle the contact problem stringently, and don't provide a sound mathematical basis for inelastic or rate dependent material behaviour.
+\end{itemize}
+\item He uses 3 domains. All use ground-fixed coordinate systems! His no. 1 = my no. 1; his no. 3 = my no. 4; his no. 2 is my no. 2 but with a ground-fixed coord. syst; his no. 3 is my no. 4 but with a ground-fixed coord. syst! I.e. his $\boldsymbol{w}$ (my $\boldsymbol{\bar{v}}$) contains a translational part! Despite the above, his \underline{displacements} are the same as mine.
+\item His $\boldsymbol{w}$ is called the "guiding velocity". \emph{His} "convective velocity" is $\mathrm{Grad}\boldsymbol{\phi}\cdot\boldsymbol{w}$ which I'll have to agree is the true convective velocity).
+\item[Q] How do we handle mass balance? Just by $\hat{\rho} = \rho J$? Aha, we assume homogeneity.
+\item He performs a symmetrization by partial integration (p. 4306).
+\item I actually think he forgets a term in eq. (28).
+\item He computes the term involving $\boldsymbol{\hat{n}}\cdot\boldsymbol{w}$! For perfectly round boundaries, this term vanishes. I therefore neglect it. Nackenhorst mentions that it is best to include it, however, since it has a real influence in discretized geometries. Neglecting it introduces an error.
+\item In discussion of FE formulation, he restricts the discussion to stationary rolling contact and a rigid rolling surface.
+\item Unsure of whether he uses a staggered solution procedure or if he just computes successively refined start guesses, like I do (probably the former, based on later papers).
+\end{itemize}
 
 
 
